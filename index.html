@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style type="text/css" media="screen">
+        body {
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            text-align: center;
+        }
+
+        #container {
+            display: inline-block;
+            position: relative;
+        }
+
+        #current {
+            position: absolute;
+            display: block;
+            color: gray;
+            top: 260px; left: 250px;
+            font-size: 56px;
+            text-align: right;
+            width: 2em;
+        }
+
+        #entered {
+            position: absolute;
+            display: block;
+            top: 100px; left: 432px;
+            text-align: right;
+        }
+
+        #entered td {
+            width: 2em; height: 1em;
+        }
+
+        #c0 { color: #ffffff; font-size: 40px; }
+        #c1 { color: #e8e8e8; font-size: 39px; }
+        #c2 { color: #dfdfdf; font-size: 38px; }
+        #c3 { color: #d8d8d8; font-size: 37px; }
+        #c4 { color: #d0d0d0; font-size: 36px; }
+        #c5 { color: #c8c8c8; font-size: 35px; }
+        #c6 { color: #c0c0c0; font-size: 34px; }
+        #c7 { color: #b8b8b8; font-size: 33px; }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.8/sjcl.min.js"></script>
+    <script type="text/javascript">
+        $("#keys").each(function(index) {
+            console.log($(this))
+        })
+
+        CORRECT = ''
+        NEXT = ''
+
+        var buff = []
+        function addChoice(value) {
+            buff.unshift(value)
+            while (buff.length > 8) {
+                buff.pop()
+            }
+        }
+
+        function print() {
+            for (var i = 0; i < 8; i++) {
+                $("#c" + i).text(buff[i])
+            }
+        }
+
+        function verify() {
+            if (buff.length != 8) return
+            var content = ""
+            for (var i = 0; i < 8; i++) {
+                content += '-'
+                content += buff[i]
+            }
+            var hash = sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(content))
+            if (hash == CORRECT) {
+                console.log('correct ' + hash)
+                plain = sjcl.decrypt(content, NEXT)
+                alert(plain) // TODO add eye candy
+            }
+        }
+
+        function clicked(element) {
+            val = keyVal(element)
+            console.log('clicked ' + val)
+            addChoice(val)
+            print()
+            verify()
+            return false;
+        }
+
+        function onover(element) {
+            val = keyVal(element)
+            console.log('over ' + val)
+            $("#current").text(val)
+        }
+
+        function onout(element) {
+            console.log('out of ' + keyVal(element))
+            $("#current").text('')
+        }
+
+        function keyVal(element) {
+            return element.getAttribute('id').replace(/^a/, "")
+        }
+
+        $(document).ready(function(event) {
+            init('-42-42-42-42-42-42-42-42', "Init");
+
+        })
+        function init(pwd, msg) {
+            hash = sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(pwd))
+            cypher = sjcl.encrypt(pwd, msg)
+            if (sjcl.decrypt(pwd, cypher) != msg) console.log('Unable to decompress')
+
+            CORRECT = hash
+            NEXT = cypher
+        }
+    </script>
+</head>
+<body>
+    <div id=container>
+        <div id=current></div>
+        <table id=entered>
+            <tr><td id=c0></td><td id=c1></td><td id=c2></td><td id=c3></td></tr>
+            <tr><td id=c4></td><td id=c5></td><td id=c6></td><td id=c7></td></tr>
+        </table>
+        <img id=piano src="piano.jpg" usemap="#keys"/>
+        <map name=keys>
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="291,365,302,365,288,377,288,382,279,396,280,409,265,408,265,394,266,392" id="a1" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="305,362,288,375,288,383,296,383,312,364,309,361" id="a2" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="312,364,296,383,286,385,280,395,282,409,297,406,295,392,321,365" id="a3" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="320,365,295,395,296,407,311,407,311,394,318,383,313,383,313,375,327,362" id="a4" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="328,362,314,375,315,384,322,384,337,362" id="a5" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="336,364,322,385,318,385,311,396,311,407,326,406,325,395,333,384,329,383,332,376,342,362" id="a6" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="344,361,332,375,332,384,339,383,352,364,351,359" id="a7" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="352,363,339,384,333,384,327,394,326,407,341,407,340,392,361,363" id="a8" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="360,363,341,395,341,408,356,407,354,393,361,381,356,381,359,374,369,361" id="a9" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="369,361,358,375,358,383,366,383,376,364,376,359" id="a10" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="376,364,367,383,359,383,354,395,357,407,371,407,369,394,376,381,374,381,374,375,383,361" id="a11" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="373,383,375,376,384,362,392,361,394,365,382,384,383,383" id="a12" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="392,365,382,382,375,382,369,394,371,408,386,407,383,394,390,383,390,373,398,363" id="a13" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="401,361,392,375,392,383,398,383,408,364,408,361" id="a14" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="408,364,398,384,390,384,384,395,385,407,400,405,399,393,417,362" id="a15" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="418,361,400,394,402,406,415,407,415,394,420,382,413,381,417,375,424,361" id="a16" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="425,360,417,374,416,383,422,383,432,364,429,359" id="a17" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="431,363,416,393,416,406,431,405,429,392,435,383,432,382,434,374,441,360" id="a18" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="442,360,435,375,435,383,441,383,449,362,446,359" id="a19" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="449,363,441,383,436,383,430,393,429,405,443,406,443,391,457,362" id="a20" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="457,362,444,393,444,406,460,406,458,393,463,382,456,382,460,373,465,361" id="a21" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="466,360,459,375,458,382,464,383,472,364,470,360" id="a22" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="472,363,459,394,461,407,474,406,473,393,477,382,472,381,480,361" id="a23" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="480,361,473,381,482,381,487,361" id="a24" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="487,362,483,382,476,382,473,394,474,408,489,406,488,392,492,382,488,383,496,361" id="a25" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="496,360,491,381,499,382,502,361" id="a26" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="503,362,498,382,491,382,488,393,489,404,504,404,503,392,510,362" id="a27" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="509,362,503,393,505,405,518,404,518,393,520,381,513,380,518,361" id="a28" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="519,361,514,381,523,381,526,360" id="a29" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="525,361,522,382,520,381,518,393,519,405,532,405,532,393,533,382,531,381,534,361" id="a30" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="534,361,531,382,540,381,543,360" id="a31" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="542,362,540,382,533,381,533,393,533,405,547,405,547,392,551,361" id="a32" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="550,362,547,392,548,405,562,405,561,391,561,382,556,380,558,361" id="a33" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="559,361,557,382,564,382,566,361" id="a34" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="566,362,565,382,560,382,562,392,562,405,576,405,576,392,576,381,571,381,573,360" id="a35" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="573,361,573,382,581,381,581,360" id="a36" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="582,361,582,381,577,381,577,392,577,405,590,405,590,392,590,382,588,380,589,360" id="a37" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="590,361,590,381,596,381,596,359" id="a38" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="596,362,597,381,590,381,590,404,605,404,604,361" id="a39" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="603,361,605,404,620,404,619,380,612,380,611,360" id="a40" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="612,361,613,381,621,382,619,359" id="a41" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="619,361,621,382,619,381,620,404,634,404,632,381,629,381,628,360" id="a42" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="627,360,629,381,638,381,635,359" id="a43" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="635,362,638,381,632,381,634,403,647,404,648,391,643,360" id="a44" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="644,362,647,392,647,403,663,404,662,391,660,379,653,381,650,362" id="a45" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="650,361,653,381,662,381,657,358" id="a46" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="658,359,664,381,661,381,662,393,662,404,677,404,677,391,675,380,669,380,666,362" id="a47" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="665,360,674,360,679,381,669,380" id="a48" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="674,361,679,380,675,382,677,392,677,403,692,403,692,391,688,380,685,380,680,362" id="a49" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="681,359,688,358,695,381,685,380" id="a50" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="689,361,696,380,688,381,692,392,692,403,706,403,706,392,697,360" id="a51" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="697,360,706,392,706,403,721,403,721,392,717,380,711,380,704,361" id="a52" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="704,360,712,359,720,381,710,381" id="a53" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="712,359,719,381,717,381,721,392,720,404,735,404,735,391,731,381,727,380,719,361" id="a54" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="720,360,729,359,736,380,728,380" id="a55" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="730,360,736,360,749,393,750,405,735,404,735,390,731,381,737,380" id="a56" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="737,361,745,361,752,380,759,380,764,391,764,404,749,403,749,391" id="a57" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="744,359,752,359,761,381,752,379" id="a58" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="753,360,760,360,768,381,772,381,779,391,778,404,764,403,764,392" id="a59" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="760,359,767,358,776,374,776,380,768,381" id="a60" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="769,360,775,360,785,380,794,391,793,405,779,404,780,391,772,380,777,380,776,375" id="a61" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="776,360,776,354,783,357,791,373,792,381,784,380,775,361" id="a62" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="785,360,790,360,808,392,808,404,793,404,794,391,785,379,793,380,792,373" id="a63" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="790,360,799,361,810,382,815,380,823,391,823,404,807,403,809,391" id="a64" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="800,362,800,357,805,357,816,373,816,380,810,381" id="a65" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="809,360,814,359,826,381,829,380,836,391,837,403,823,403,824,391,815,379,818,379,817,373" id="a66" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="816,361,816,358,822,357,833,372,835,380,827,380" id="a67" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="826,360,831,360,851,391,851,404,837,403,836,392,829,380,836,379,833,371" id="a68" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="833,361,839,361,852,381,857,381,866,392,866,403,851,403,852,392" id="a69" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="840,361,839,357,846,356,857,373,860,380,853,380" id="a70" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="849,361,854,361,867,380,872,381,881,391,881,403,866,403,866,392,857,381,861,379,857,371" id="a71" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="855,361,855,357,861,357,875,372,876,380,869,380" id="a72" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="865,361,870,360,884,380,896,392,896,403,881,402,882,391,871,380,878,379,875,372" id="a73" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="871,361,871,356,876,354,891,373,893,380,885,380" id="a74" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="883,361,886,361,910,391,910,402,897,403,897,392,885,378,893,380,891,372" id="a75" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="924,402,924,391,915,379,908,379,893,360,886,361,910,391,911,403" id="a76" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="895,362,894,356,900,357,916,372,916,380,908,379" id="a77" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="905,360,910,361,926,379,940,390,939,402,924,401,924,392,915,379,918,380,916,372" id="a78" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="910,362,910,355,917,356,934,373,933,379,927,379" id="a79" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="922,360,925,359,955,391,952,403,939,402,940,391,929,379,934,379,934,374" id="a80" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="928,360,933,360,951,379,959,379,968,390,968,402,953,403,954,391" id="a81" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="935,361,934,356,943,358,958,372,958,379,950,379" id="a82" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="948,361,951,361,969,379,982,390,982,402,966,401,968,391,958,378,957,371" id="a83" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="951,360,951,355,958,358,974,372,975,378,969,379" id="a84" />
+            <area href="" onmouseover="onover(this);" onmouseout="onout(this);" onclick="return clicked(this);" shape="poly" coords="963,360,965,360,998,390,997,403,981,402,983,390,970,379,976,379,974,372" id="a85" />
+        </map>
+    </div>
+</body>
+</html>
