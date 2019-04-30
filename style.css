@@ -1,0 +1,41 @@
+body {
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    text-align: center;
+}
+
+#container {
+    display: inline-block;
+    position: relative;
+}
+
+#current {
+    position: absolute;
+    display: block;
+    color: gray;
+    top: 260px; left: 250px;
+    font-size: 56px;
+    text-align: right;
+    width: 2em;
+}
+
+#entered {
+    position: absolute;
+    display: block;
+    top: 100px; left: 432px;
+    text-align: right;
+}
+
+#entered td {
+    width: 2em; height: 1em;
+}
+
+#c0 { color: #ffffff; font-size: 40px; }
+#c1 { color: #e8e8e8; font-size: 39px; }
+#c2 { color: #dfdfdf; font-size: 38px; }
+#c3 { color: #d8d8d8; font-size: 37px; }
+#c4 { color: #d0d0d0; font-size: 36px; }
+#c5 { color: #c8c8c8; font-size: 35px; }
+#c6 { color: #c0c0c0; font-size: 34px; }
+#c7 { color: #b8b8b8; font-size: 33px; }
